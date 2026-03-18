@@ -41,4 +41,4 @@ workflow:
     send_slack_notification:
       script: scripts/utils/slack_alert.py
       description: "Notifies the growth team that the daily run is complete"
-      dependencies: ["update_bi_dashboard", "validate_and_clean_data"]
+      dependencies: ["compute_marketing_attribution"]
