@@ -1,20 +1,44 @@
 workflow:
-  name: sales_daily_pipeline
-  description: Daily ETL pipeline that extracts sales, transforms metrics, and builds a report.
-  schedule: "0 7 * * *"
+  name: marketing_analytics_advanced_pipeline
+  description: Advanced pipeline for multi-source ingestion, data cleansing, attribution modeling, and Slack reporting.
+  schedule: "30 6 * * *"
   default_args:
-    python_bin: python3
-    retries: 2
-    retry_delay_seconds: 60
+    python_bin: python3.10
+    retries: 3
+    retry_delay_seconds: 300
     env:
-      APP_ENV: dev
-      LOG_LEVEL: INFO
+      APP_ENV: production
+      LOG_LEVEL: DEBUG
+      DB_NAME: analytics_db
+
   tasks:
-    extract_sales:
-      script: scripts/extract_sales.py
-    transform_sales:
-      script: scripts/transform_sales.py
-      dependencies: ["extract_sales"]
-    build_daily_report:
-      script: scripts/build_daily_report.py
-      dependencies: ["transform_sales"]
+    # --- Ingestion Phase (Parallel) ---
+    fetch_google_ads:
+      script: scripts/ingest/google_ads.py
+      description: "Extracts ad spend data via Google Ads API"
+
+    fetch_crm_data:
+      script: scripts/ingest/salesforce_leads.py
+      description: "Extracts new lead entries from Salesforce CRM"
+
+    # --- Processing Phase ---
+    validate_and_clean_data:
+      script: scripts/transform/cleanse.py
+      description: "Verifies data integrity and merges both ingestion sources"
+      dependencies: ["fetch_google_ads", "fetch_crm_data"]
+
+    compute_marketing_attribution:
+      script: scripts/transform/attribution_model.py
+      description: "Calculates ROI and channel attribution scores"
+      dependencies: ["validate_and_clean_data"]
+
+    # --- Output Phase ---
+    update_bi_dashboard:
+      script: scripts/export/refresh_tableau.py
+      description: "Refreshes materialized views for the Marketing Dashboard"
+      dependencies: ["compute_marketing_attribution"]
+
+    send_slack_notification:
+      script: scripts/utils/slack_alert.py
+      description: "Notifies the growth team that the daily run is complete"
+      dependencies: ["update_bi_dashboard", "validate_and_clean_data"]
