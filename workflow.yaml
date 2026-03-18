@@ -1,0 +1,20 @@
+workflow:
+  name: sales_daily_pipeline
+  description: Daily ETL pipeline that extracts sales, transforms metrics, and builds a report.
+  schedule: "0 7 * * *"
+  default_args:
+    python_bin: python3
+    retries: 2
+    retry_delay_seconds: 60
+    env:
+      APP_ENV: dev
+      LOG_LEVEL: INFO
+  tasks:
+    extract_sales:
+      script: scripts/extract_sales.py
+    transform_sales:
+      script: scripts/transform_sales.py
+      dependencies: ["extract_sales"]
+    build_daily_report:
+      script: scripts/build_daily_report.py
+      dependencies: ["transform_sales"]
