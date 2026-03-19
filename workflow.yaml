@@ -30,7 +30,7 @@ workflow:
     compute_marketing_attribution:
       script: scripts/attribution_model.py
       description: "Calculates ROI and channel attribution scores"
-      dependencies: ["validate_and_clean_data"]
+      dependencies: ["compute_marketing_attribution"]
 
     # --- Output Phase ---
     update_bi_dashboard:
