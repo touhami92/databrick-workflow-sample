@@ -36,9 +36,9 @@ workflow:
     update_bi_dashboard:
       script: scripts/refresh_tableau.py
       description: "Refreshes materialized views for the Marketing Dashboard"
-      dependencies: ["validate_and_clean_data"]
+      dependencies: ["compute_marketing_attribution"]
 
     send_slack_notification:
       script: scripts/slack_alert.py
       description: "Notifies the growth team that the daily run is complete"
-      dependencies: ["validate_and_clean_data"]
+      dependencies: ["update_bi_dashboard"]
