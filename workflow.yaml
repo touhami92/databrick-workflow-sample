@@ -14,31 +14,31 @@ workflow:
   tasks:
     # --- Ingestion Phase (Parallel) ---
     fetch_google_ads:
-      script: scripts/ingest/google_ads.py
+      script: scripts/google_ads.py
       description: "Extracts ad spend data via Google Ads API"
 
     fetch_crm_data:
-      script: scripts/ingest/salesforce_leads.py
+      script: scripts/salesforce_leads.py
       description: "Extracts new lead entries from Salesforce CRM"
 
     # --- Processing Phase ---
     validate_and_clean_data:
-      script: scripts/transform/cleanse.py
+      script: scripts/cleanse.py
       description: "Verifies data integrity and merges both ingestion sources"
       dependencies: ["fetch_google_ads", "fetch_crm_data"]
 
     compute_marketing_attribution:
-      script: scripts/transform/attribution_model.py
+      script: scripts/attribution_model.py
       description: "Calculates ROI and channel attribution scores"
       dependencies: ["validate_and_clean_data"]
 
     # --- Output Phase ---
     update_bi_dashboard:
-      script: scripts/export/refresh_tableau.py
+      script: scripts/refresh_tableau.py
       description: "Refreshes materialized views for the Marketing Dashboard"
       dependencies: ["compute_marketing_attribution"]
 
     send_slack_notification:
-      script: scripts/utils/slack_alert.py
+      script: scripts/slack_alert.py
       description: "Notifies the growth team that the daily run is complete"
       dependencies: ["compute_marketing_attribution"]
