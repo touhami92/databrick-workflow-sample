@@ -1,0 +1,22 @@
+workflow:
+  name: ads_spend_report
+  description: Extracts Google Ads spend data and refreshes the BI dashboard.
+  schedule: "15 7 * * *"
+  default_args:
+    python_bin: python3.10
+    retries: 3
+    retry_delay_seconds: 240
+    env:
+      APP_ENV: production
+      LOG_LEVEL: DEBUG
+      DB_NAME: ads_db
+
+  tasks:
+    fetch_google_ads:
+      script: scripts/google_ads.py
+      description: "Extracts ad spend data via Google Ads API"
+
+    update_bi_dashboard:
+      script: scripts/refresh_tableau.py
+      description: "Refreshes materialized views for the Ads Spend Dashboard"
+      dependencies: ["fetch_google_ads"]

@@ -1,0 +1,32 @@
+workflow:
+  name: crm_attribution_flow
+  description: CRM-only ingestion feeding cleansing and attribution scoring.
+  schedule: "45 4 * * *"
+  default_args:
+    python_bin: python3.10
+    retries: 3
+    retry_delay_seconds: 300
+    env:
+      APP_ENV: production
+      LOG_LEVEL: DEBUG
+      DB_NAME: crm_db
+
+  tasks:
+    fetch_crm_data:
+      script: scripts/salesforce_leads.py
+      description: "Extracts new lead entries from Salesforce CRM"
+
+    validate_and_clean_data:
+      script: scripts/cleanse.py
+      description: "Verifies data integrity of the CRM extract"
+      dependencies: ["fetch_crm_data"]
+
+    compute_marketing_attribution:
+      script: scripts/attribution_model.py
+      description: "Calculates ROI and channel attribution scores"
+      dependencies: ["validate_and_clean_data"]
+
+    send_slack_notification:
+      script: scripts/slack_alert.py
+      description: "Notifies the growth team that attribution is complete"
+      dependencies: ["compute_marketing_attribution"]

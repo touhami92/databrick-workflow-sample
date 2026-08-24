@@ -1,18 +1,17 @@
 workflow:
-  name: marketing_analytics_advanced_pipeline
-  description: Advanced pipeline for multi-source ingestion, data cleansing, attribution modeling, and Slack reporting.
-  schedule: "30 6 * * *"
+  name: attribution_nightly
+  description: Nightly attribution modeling job combining ads and CRM sources.
+  schedule: "0 2 * * *"
   default_args:
     python_bin: python3.10
-    retries: 3
+    retries: 4
     retry_delay_seconds: 300
     env:
       APP_ENV: production
-      LOG_LEVEL: DEBUG
-      DB_NAME: analytics_db
+      LOG_LEVEL: INFO
+      DB_NAME: attribution_db
 
   tasks:
-    # --- Ingestion Phase (Parallel) ---
     fetch_google_ads:
       script: scripts/google_ads.py
       description: "Extracts ad spend data via Google Ads API"
@@ -21,7 +20,6 @@ workflow:
       script: scripts/salesforce_leads.py
       description: "Extracts new lead entries from Salesforce CRM"
 
-    # --- Processing Phase ---
     validate_and_clean_data:
       script: scripts/cleanse.py
       description: "Verifies data integrity and merges both ingestion sources"
@@ -31,14 +29,3 @@ workflow:
       script: scripts/attribution_model.py
       description: "Calculates ROI and channel attribution scores"
       dependencies: ["validate_and_clean_data"]
-
-    # --- Output Phase ---
-    update_bi_dashboard:
-      script: scripts/refresh_tableau.py
-      description: "Refreshes materialized views for the Marketing Dashboard"
-      dependencies: ["compute_marketing_attribution"]
-
-    send_slack_notification:
-      script: scripts/slack_alert.py
-      description: "Notifies the growth team that the daily run is complete"
-      dependencies: ["compute_marketing_attribution"]
