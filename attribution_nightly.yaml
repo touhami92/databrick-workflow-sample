@@ -1,0 +1,31 @@
+workflow:
+  name: attribution_nightly
+  description: Nightly attribution modeling job combining ads and CRM sources.
+  schedule: "0 2 * * *"
+  default_args:
+    python_bin: python3.10
+    retries: 4
+    retry_delay_seconds: 300
+    env:
+      APP_ENV: production
+      LOG_LEVEL: INFO
+      DB_NAME: attribution_db
+
+  tasks:
+    fetch_google_ads:
+      script: scripts/google_ads.py
+      description: "Extracts ad spend data via Google Ads API"
+
+    fetch_crm_data:
+      script: scripts/salesforce_leads.py
+      description: "Extracts new lead entries from Salesforce CRM"
+
+    validate_and_clean_data:
+      script: scripts/cleanse.py
+      description: "Verifies data integrity and merges both ingestion sources"
+      dependencies: ["fetch_google_ads", "fetch_crm_data"]
+
+    compute_marketing_attribution:
+      script: scripts/attribution_model.py
+      description: "Calculates ROI and channel attribution scores"
+      dependencies: ["validate_and_clean_data"]

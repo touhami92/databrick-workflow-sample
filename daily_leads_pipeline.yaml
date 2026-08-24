@@ -1,0 +1,27 @@
+workflow:
+  name: daily_leads_pipeline
+  description: Lightweight pipeline to fetch CRM leads, clean them, and notify the team.
+  schedule: "0 5 * * *"
+  default_args:
+    python_bin: python3.10
+    retries: 2
+    retry_delay_seconds: 180
+    env:
+      APP_ENV: production
+      LOG_LEVEL: INFO
+      DB_NAME: leads_db
+
+  tasks:
+    fetch_crm_data:
+      script: scripts/salesforce_leads.py
+      description: "Extracts new lead entries from Salesforce CRM"
+
+    validate_and_clean_data:
+      script: scripts/cleanse.py
+      description: "Verifies data integrity of ingested leads"
+      dependencies: ["fetch_crm_data"]
+
+    send_slack_notification:
+      script: scripts/slack_alert.py
+      description: "Notifies the growth team that leads are ready"
+      dependencies: ["validate_and_clean_data"]

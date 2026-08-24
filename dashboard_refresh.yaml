@@ -1,0 +1,22 @@
+workflow:
+  name: dashboard_refresh
+  description: Simple job to refresh the Tableau dashboard and alert the team.
+  schedule: "*/30 * * * *"
+  default_args:
+    python_bin: python3.10
+    retries: 1
+    retry_delay_seconds: 120
+    env:
+      APP_ENV: production
+      LOG_LEVEL: WARNING
+      DB_NAME: analytics_db
+
+  tasks:
+    update_bi_dashboard:
+      script: scripts/refresh_tableau.py
+      description: "Refreshes materialized views for the Marketing Dashboard"
+
+    send_slack_notification:
+      script: scripts/slack_alert.py
+      description: "Notifies the team that the dashboard has been refreshed"
+      dependencies: ["update_bi_dashboard"]
