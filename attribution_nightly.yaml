@@ -1,6 +1,13 @@
 workflow:
   name: attribution_nightly
   description: Nightly attribution modeling job combining ads and CRM sources.
+  overrides:
+    dev:
+      instance_profile: cdh_databrickscoredev_28098
+    acc:
+      instance_profile: cdh_databrickscoredev_28098
+    prd:
+      instance_profile: cdh_databrickscoredev_28098
   schedule: "0 2 * * *"
   default_args:
     python_bin: python3.10

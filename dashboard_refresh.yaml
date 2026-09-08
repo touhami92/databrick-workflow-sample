@@ -1,6 +1,13 @@
 workflow:
   name: dashboard_refresh
   description: Simple job to refresh the Tableau dashboard and alert the team.
+  overrides:
+    dev:
+      instance_profile: cdh_databrickscoredev_28098
+    acc:
+      instance_profile: cdh_databrickscoredev_28098
+    prd:
+      instance_profile: cdh_databrickscoredev_28098
   schedule: "*/30 * * * *"
   default_args:
     python_bin: python3.10
