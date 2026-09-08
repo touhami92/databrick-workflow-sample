@@ -1,6 +1,13 @@
 workflow:
   name: ads_spend_report
   description: Extracts Google Ads spend data and refreshes the BI dashboard.
+  overrides:
+    dev:
+      instance_profile: cdh_databrickscoredev_28098
+    acc:
+      instance_profile: cdh_databrickscoredev_28098
+    prd:
+      instance_profile: cdh_databrickscoredev_28098
   schedule: "15 7 * * *"
   default_args:
     python_bin: python3.10

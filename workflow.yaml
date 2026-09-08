@@ -1,6 +1,13 @@
 workflow:
   name: marketing_analytics_advanced_pipeline
   description: Advanced pipeline for multi-source ingestion, data cleansing, attribution modeling, and Slack reporting.
+  overrides:
+    dev:
+      instance_profile: cdh_databrickscoredev_28098
+    acc:
+      instance_profile: cdh_databrickscoredev_28098
+    prd:
+      instance_profile: cdh_databrickscoredev_28098
   schedule: "30 6 * * *"
   default_args:
     python_bin: python3.10
