@@ -1,7 +1,7 @@
 workflow:
   name: crm_attribution_flow
   description: CRM-only ingestion feeding cleansing and attribution scoring.
-  overrides:
+  compute:
     dev:
       instance_profile: cdh_databrickscoredev_28098
     acc:
