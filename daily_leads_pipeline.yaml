@@ -1,7 +1,7 @@
 workflow:
   name: daily_leads_pipeline
   description: Lightweight pipeline to fetch CRM leads, clean them, and notify the team.
-  overrides:
+  compute:
     dev:
       instance_profile: cdh_databrickscoredev_28098
     acc:
